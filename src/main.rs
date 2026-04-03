@@ -14,6 +14,9 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 mod fast_index;
 use fast_index::{BamIndex, cluster_loci};
 
+mod optimized_detector;
+use optimized_detector::{LowMemoryConfig, get_optimal_config};
+
 mod isoseq;
 use isoseq::{analyze_locus_transcripts, validate_with_isoseq};
 
@@ -708,6 +711,18 @@ struct Args {
     /// (sanity: all GT regions given as seeds yields 100% recall). Set to 1.01 to disable.
     #[arg(long, default_value_t = 0.95)]
     eval_seed_confirm_ref_frac: f64,
+
+    /// Enable low-memory mode for systems with limited RAM (reduces allocations and I/O)
+    #[arg(long, default_value_t = false)]
+    low_memory: bool,
+
+    /// Batch size for BAM queries in low-memory mode (smaller = less memory, slower)
+    #[arg(long, default_value_t = 100000)]
+    low_mem_batch_size: i64,
+
+    /// Maximum chunk size for chromosome scanning in low-memory mode (bp)
+    #[arg(long, default_value_t = 1000000)]
+    low_mem_chunk_size: i64,
 }
 
 /// A seed region for gene family detection
@@ -4138,12 +4153,30 @@ fn main() -> Result<()> {
         
         // Use the optimized multi-seed function that scans only target chromosomes
         let detection_start = std::time::Instant::now();
-        let (mut all_loci, _, all_seed_reads) = detect_transitive_multi_seed_and_reads(
-            &args.bam,
-            &seed_tuples,
-            &target_chroms,
-            &params,
-        )?;
+        
+        let (mut all_loci, _, all_seed_reads) = if args.low_memory {
+            // Low-memory mode: use optimized detector with reduced allocations
+            println!("  Using low-memory optimized mode...");
+            let config = LowMemoryConfig {
+                batch_size: args.low_mem_batch_size as usize,
+                max_chunk_size: args.low_mem_chunk_size as usize,
+            };
+            optimized_detector::detect_transitive_multi_seed_low_memory(
+                &args.bam,
+                &seed_tuples,
+                &target_chroms,
+                &params,
+                &config,
+            )?
+        } else {
+            // Standard mode
+            detect_transitive_multi_seed_and_reads(
+                &args.bam,
+                &seed_tuples,
+                &target_chroms,
+                &params,
+            )?
+        };
         println!("  Multi-seed detection: {:?}", detection_start.elapsed());
         
         // === POST-HOC CLASSIFICATION: Identify single-copy vs multi-copy ===

@@ -141,6 +141,19 @@ parapente --seeds-bed family_seeds.bed --min-seeds 2 ...
 --threads 8
 ```
 
+### Low-Memory Mode (for laptops/low-RAM systems)
+```bash
+# Enable memory-efficient processing
+parapente \
+  --bam sample.bam \
+  --seeds-bed seeds.bed \
+  --output results.bed \
+  --low-memory \
+  --threads 2
+```
+
+See [docs/PERFORMANCE_OPTIMIZATION.md](docs/PERFORMANCE_OPTIMIZATION.md) for detailed tuning options.
+
 ## Project Structure
 
 ```
