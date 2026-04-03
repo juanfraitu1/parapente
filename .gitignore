@@ -1,0 +1,46 @@
+# Rust build artifacts
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# Large data files (not suitable for GitHub)
+*.bam
+*.bam.bai
+*.bai
+*.fasta
+*.fasta.fai
+*.gff
+*.gff.gz
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+
+# Results and outputs (regenerable)
+results/*/
+!results/all_families/
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*~
+.DS_Store
+
+# IDE files
+.vscode/
+.idea/
+*.code-workspace
+
+# Archive directories
+archive_*/
+
+# Test outputs
+*.bed
+!data/*.bed
+!data/*.gtf

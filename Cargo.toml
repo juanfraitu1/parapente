@@ -1,0 +1,42 @@
+[package]
+name = "parapente"
+version = "0.2.0"
+edition = "2021"
+authors = ["Francisco Iturralde Martinez"]
+description = "RNA-based paralog discovery using multi-mapping reads"
+license = "MIT"
+repository = "https://github.com/fiturral/parapente"
+keywords = ["paralog", "gene-family", "rna-seq", "bioinformatics", "genomics"]
+categories = ["science", "command-line-utilities"]
+
+[[bin]]
+name = "parapente"
+path = "src/main.rs"
+
+[[bin]]
+name = "parapente-fast"
+path = "src/bin/fast_detector.rs"
+
+[dependencies]
+noodles = { version = "0.93", features = ["bam", "sam", "core", "bgzf"] }
+noodles-bgzf = "0.36"
+clap = { version = "4.5", features = ["derive"] }
+anyhow = "1.0"
+bstr = "1.0"
+rayon = "1.10"
+fxhash = "0.2"
+hashbrown = "0.14"
+memmap2 = "0.9"
+roaring = "0.10"
+lazy_static = "1.4"
+lru = "0.12"
+pathfinding = "4.11"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+[[bin]]
+name = "parapente-connectivity"
+path = "src/bin/connectivity_test.rs"
+required-features = ["smart_seed_selector"]

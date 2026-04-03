@@ -1,0 +1,52 @@
+parapente/
+├── Cargo.toml              # Rust package configuration
+├── Cargo.lock              # Dependency lock file
+├── README.md               # Main documentation
+├── .gitignore              # Git ignore rules
+│
+├── src/                    # Rust source code
+│   ├── main.rs             # CLI entry point
+│   ├── transitive_detector.rs   # Core discovery algorithm
+│   ├── coverage_valley.rs       # Coverage-based splitting
+│   ├── coverage_std_filter.rs   # Coverage filtering
+│   ├── jaccard_cache.rs         # Jaccard similarity caching
+│   ├── coverage_cache.rs        # Coverage profile caching
+│   ├── boundary_refinement.rs   # Locus boundary refinement
+│   ├── junction_refinement.rs   # Splice junction splitting
+│   ├── integrated_detector.rs   # Integrated detection pipeline
+│   ├── read_cloud.rs            # Read cloud analysis
+│   ├── smart_seed_selector.rs   # Seed selection algorithms
+│   ├── isoseq.rs                # Iso-Seq validation
+│   ├── fast_index.rs            # Fast BAM indexing
+│   └── bin/
+│       ├── fast_detector.rs     # Fast detection binary
+│       └── connectivity_test.rs # Connectivity analysis binary
+│
+├── scripts/                # Python helper scripts
+│   ├── generate_per_member_tsv.py   # Evaluation report generator
+│   ├── run_all_families_resume.py   # Batch runner (resume capability)
+│   ├── run_batch_83_families.py     # Full batch processor
+│   └── batch_process_all_families.py # Iterative batch processor
+│
+├── data/                   # Ground truth data
+│   ├── ground_truth_80families.bed   # 362 gene annotations
+│   └── ground_truth_80families.gtf   # Detailed GTF version
+│
+├── docs/                   # Documentation
+│   ├── METHODOLOGY.md      # Algorithm details
+│   ├── PERFORMANCE.md      # Benchmark results
+│   ├── MULTI_MAPPING_SKELETON_CONCEPT.md  # Design concept
+│   ├── PROGRESS_NOTES.md   # Development log
+│   ├── PROJECT_STATUS_AND_COMMANDS.md     # Status and commands
+│   ├── README_CONNECTIVITY_SEED.md        # Connectivity docs
+│   ├── README_RUST_DETECTOR.md            # Rust detector docs
+│   ├── AGENTS.md           # Agent guidelines
+│   └── CLAUDE.md           # Claude-specific notes
+│
+└── results/                # Results directory (gitignored contents)
+    ├── FINAL_DETECTION_RESULTS.csv
+    └── all_families/
+        └── all.tsv         # Summary of 83 families
+
+Total source files: ~35 Rust modules + Python scripts
+Estimated size for GitHub: ~3 MB (excluding large data files)
