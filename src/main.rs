@@ -4146,6 +4146,58 @@ fn main() -> Result<()> {
         )?;
         println!("  Multi-seed detection: {:?}", detection_start.elapsed());
         
+        // === POST-HOC CLASSIFICATION: Identify single-copy vs multi-copy ===
+        // Check which seeds only found themselves (single-copy) vs found paralogs (multi-copy)
+        println!("\n=== COPY NUMBER CLASSIFICATION ===");
+        let mut single_copy_seeds = Vec::new();
+        let mut multi_copy_count = 0;
+        
+        for (idx, seed) in seeds.iter().enumerate() {
+            // Count how many loci overlap this seed
+            let overlapping_loci: Vec<_> = all_loci.iter()
+                .filter(|l| {
+                    l.chrom == seed.chrom &&
+                    l.start < seed.end &&
+                    l.end > seed.start
+                })
+                .collect();
+            
+            // Check if this seed connects to other loci via shared reads
+            let seed_reads = collect_seed_reads_fast(
+                &args.bam,
+                &seed.chrom,
+                seed.start as usize,
+                seed.end as usize,
+                args.include_supplementary
+            ).unwrap_or_default();
+            
+            let connected_loci: Vec<_> = all_loci.iter()
+                .filter(|l| {
+                    if l.chrom == seed.chrom && l.start == seed.start && l.end == seed.end {
+                        return false; // Skip self
+                    }
+                    // Check if locus shares reads with seed
+                    l.reads.iter().any(|r| seed_reads.contains(r))
+                })
+                .collect();
+            
+            if connected_loci.is_empty() {
+                single_copy_seeds.push(idx);
+                println!("  Seed {} ({}:{}-{}): SINGLE-COPY (no paralogs found)",
+                         seed.name.as_deref().unwrap_or("?"),
+                         seed.chrom, seed.start, seed.end);
+            } else {
+                multi_copy_count += 1;
+                println!("  Seed {} ({}:{}-{}): MULTI-COPY ({} connected loci)",
+                         seed.name.as_deref().unwrap_or("?"),
+                         seed.chrom, seed.start, seed.end,
+                         connected_loci.len());
+            }
+        }
+        
+        println!("  Summary: {} multi-copy families, {} single-copy genes",
+                 multi_copy_count, single_copy_seeds.len());
+        
         // Compute core reads per connected component of seeds
         // This handles families with multiple sub-clusters that share different reads
         let core_read_components = compute_core_reads_by_component(&args.bam, &seeds, args.include_supplementary)?;
